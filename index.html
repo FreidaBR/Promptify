@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Refiner</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Remove the existing <style> tag and its contents as we're now using external CSS -->
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+  <div class="glow-orb orb-1" aria-hidden="true"></div>
+  <div class="glow-orb orb-2" aria-hidden="true"></div>
+
+  <nav class="navbar">
+    <div class="logo">Promptify</div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <div class="api-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="apiStatusText">Checking Ollama...</span>
+      </div>
+      
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>AI Prompt Refiner</h1>
+    <p class="subtitle">Make your AI prompts more effective</p>
+
+    <section class="card">
+      <div class="refine-grid">
+        <div>
+          <label for="userPrompt">Original Prompt</label>
+          <textarea id="userPrompt" rows="4" placeholder="Enter your prompt here..."></textarea>
+          <div class="controls">
+            <button class="btn primary" id="refineBtn">Refine Prompt</button>
+            <button class="btn ghost" id="clearBtn">Clear</button>
+          </div>
+        </div>
+
+        <div>
+          <label for="refinedPrompt">Refined Prompt</label>
+          <textarea id="refinedPrompt" rows="4" readonly></textarea>
+          <div class="controls">
+            <button class="btn ghost" id="copyBtn">Copy</button>
+          </div>
+        </div>
+      </div>
+      <p class="status" id="statusLine">Status: Ready</p>
+    </section>
+  </main>
+
+  <script>
+    const userPromptEl = document.getElementById('userPrompt');
+    const refinedEl = document.getElementById('refinedPrompt');
+    const statusLine = document.getElementById('statusLine');
+    const refineBtn = document.getElementById('refineBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    async function refinePrompt() {
+      const userPrompt = userPromptEl.value.trim();
+      if (!userPrompt) {
+        statusLine.textContent = 'Status: Please enter a prompt';
+        return;
+      }
+
+      statusLine.textContent = 'Status: Refining prompt...';
+      refineBtn.disabled = true;
+      refinedEl.value = 'Working...';
+
+      try {
+        const response = await fetch('http://localhost:5000/refine', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: userPrompt })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+
+        refinedEl.value = data.refined;
+        statusLine.textContent = 'Status: Prompt refined successfully';
+      } catch (error) {
+        console.error('Refinement error:', error);
+        refinedEl.value = '';
+        statusLine.textContent = 'Status: ' + error.message;
+      } finally {
+        refineBtn.disabled = false;
+      }
+    }
+
+    refineBtn.addEventListener('click', refinePrompt);
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(refinedEl.value);
+      statusLine.textContent = 'Status: Copied to clipboard';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([refinedEl.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'refined-prompt.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      statusLine.textContent = 'Status: Downloaded';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      userPromptEl.value = '';
+      refinedEl.value = '';
+      statusLine.textContent = 'Status: Cleared';
+    });
+  </script>
+</body>
+</html>
