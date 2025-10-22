@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promptify - Optimize Your AI Prompts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0f1a;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: rgba(10, 15, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.4em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.95em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #64ffda;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            color: #64ffda;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(100, 255, 218, 0.2);
+            border-color: #64ffda;
+        }
+
+        .background-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(100, 255, 218, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 255, 218, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        .glow-orb {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            background: #64ffda;
+            top: -200px;
+            left: -200px;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .orb-2 {
+            background: #00bfa5;
+            bottom: -200px;
+            right: -200px;
+            animation: float 20s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 150px 40px 80px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        h1 .highlight {
+            background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease-out 0.2s backwards;
+        }
+
+        .cta-button {
+            background: transparent;
+            border: 1px solid #64ffda;
+            color: #64ffda;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 60px;
+            animation: fadeInUp 1s ease-out 0.4s backwards;
+        }
+
+        .cta-button:hover {
+            background: rgba(100, 255, 218, 0.1);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+        }
+
+        .chat-container {
+            background: rgba(20, 30, 45, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease-out 0.6s backwards;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .chat-title {
+            color: #64ffda;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: #64ffda;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: #64ffda;
+        }
+
+        .message-box {
+            background: rgba(30, 45, 65, 0.5);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .message-box:hover {
+            border-color: #64ffda;
+            background: rgba(30, 45, 65, 0.7);
+        }
+
+        .message-icon {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
+            border-radius: 8px;
+            text-align: center;
+            line-height: 35px;
+            margin-right: 12px;
+            font-weight: 600;
+            color: #0a0f1a;
+        }
+
+        .message-text {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: rgba(30, 45, 65, 0.5);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .input-container:focus-within {
+            border-color: #64ffda;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+        }
+
+        .prompt-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 1em;
+        }
+
+        .prompt-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #64ffda 0%, #00bfa5 100%);
+            border: none;
+            border-radius: 8px;
+            color: #0a0f1a;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 80px;
+        }
+
+        .feature-card {
+            background: rgba(20, 30, 45, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            border-radius: 16px;
+            padding: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #64ffda;
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            color: #64ffda;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-text {
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .container {
+                padding: 120px 20px 60px;
+            }
+            
+            .chat-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <nav class="navbar">
+        <div class="logo">Promptify</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+        </ul>
+        <div class="nav-icons">
+            <div class="icon-btn">👤</div>
+            <div class="icon-btn">☰</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Chat with <span class="highlight">AI</span></h1>
+        <p class="subtitle">Simply ask your AI chatbot assistant to generate!</p>
+        
+        <button class="cta-button">✨ Try With Demo</button>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">🎯 Prompt</div>
+                <button class="clear-btn">Clear chat</button>
+            </div>
+
+            <div class="message-box">
+                <span class="message-icon">P</span>
+                <span class="message-text">Hello! How can I help you today?</span>
+            </div>
+
+            <div class="message-box">
+                <span class="message-icon">P</span>
+                <div class="message-text">
+                    Certainly! As an AI chatbot web service, I can provide a general summary of the Discord platform. The Discord platform is a 
+                    popular chat and voice communication platform for gamers and communities. It was founded in 2015 by Jason Citron and Stanislav Vishnevskiy 
+                    as a solution for gamers to communicate during gameplay. Discord has gained popularity for its user-friendly interface, 
+                    versatile features, and cross-platform compatibility, allowing users to connect and engage in text and voice conversations 
+                    on various devices. It has become a go-to option for gamers to chat, voice call, share screens and content.
+                </div>
+            </div>
+
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    class="prompt-input" 
+                    placeholder="Enter Your Message..." 
+                    id="promptInput"
+                >
+                <button class="send-button" onclick="optimizePrompt()">➤</button>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">Precision Enhancement</div>
+                <div class="feature-text">Refine vague prompts into clear, specific instructions that AI models understand better and provide accurate results</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-title">Better Responses</div>
+                <div class="feature-text">Get more accurate, detailed, and relevant answers from any AI chatbot with optimized prompts</div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">Instant Optimization</div>
+                <div class="feature-text">Transform your prompts in seconds with AI-powered enhancement algorithms</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function optimizePrompt() {
+            const input = document.getElementById('promptInput');
+            if (input.value.trim()) {
+                const messageBox = document.createElement('div');
+                messageBox.className = 'message-box';
+                messageBox.innerHTML = `
+                    <span class="message-icon">P</span>
+                    <span class="message-text">${input.value}</span>
+                `;
+                
+                const container = document.querySelector('.chat-container');
+                const inputContainer = document.querySelector('.input-container');
+                container.insertBefore(messageBox, inputContainer);
+                
+                input.value = '';
+                
+                setTimeout(() => {
+                    messageBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+
+        document.getElementById('promptInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                optimizePrompt();
+            }
+        });
+
+        document.querySelector('.clear-btn').addEventListener('click', function() {
+            const messages = document.querySelectorAll('.message-box');
+            messages.forEach((msg, index) => {
+                if (index >= 2) {
+                    msg.remove();
+                }
+            });
+        });
+
+        document.querySelector('.cta-button').addEventListener('click', function() {
+            document.querySelector('.chat-container').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        });
+    </script>
+</body>
+</html>
